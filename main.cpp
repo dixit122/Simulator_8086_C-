@@ -90,6 +90,9 @@ public:
     }
 };
 
+// gloabal objects
+registers reg;
+
 class memory
 {
 private:
@@ -110,10 +113,43 @@ public:
         }
     }
 
-    
-};
+    bool is_memory(string &operand)
+    {
+        for (auto &i : operand)
+        {
+            if (i == '[')
+                return true;
+        }
+        return false;
+    }
 
-registers reg;
+    uint16_t convert_string_to_memory_location(string &mem_loc)
+    {
+        uint16_t location = 0;
+
+        string curr = "";
+        vector<string> elements;
+        for (auto &i : mem_loc)
+        {
+            if (i == '[' || i == ']' || i == ' ' || i == '+' || i == '-')
+            {
+                if (curr.size())
+                {
+                    elements.push_back(curr);
+                }
+                curr = "";
+                if (i == '-')
+                {
+                    curr.push_back('-');
+                }
+            }
+            else
+            {
+                curr.push_back(i);
+            }
+        }
+    }
+};
 
 int main(void)
 {
