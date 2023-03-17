@@ -13,7 +13,7 @@ private:
     int16_t AL, BL, CL, DL;
     int16_t AH, BH, CH, DH;
     int16_t flag;
-    map<string, int16_t *> reg;
+    map<string, int16_t *> regi;
 
 public:
     registers();
@@ -25,6 +25,10 @@ public:
     int16_t get_data(string &);
 
     void set_value(string &, int16_t);
+
+    void print_register_map();
+
+    void print_reg_data_hex_format(string &);
 };
 
 #endif

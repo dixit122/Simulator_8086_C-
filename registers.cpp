@@ -2,33 +2,33 @@
 
 registers::registers()
 {
-    reg["AX"] = &AX;
-    reg["BX"] = &BX;
-    reg["CX"] = &CX;
-    reg["DX"] = &DX;
-    reg["BP"] = &BP;
-    reg["SP"] = &SP;
-    reg["DI"] = &DI;
-    reg["SI"] = &SI;
-    reg["FLAG"] = &flag;
+    regi["AX"] = &AX;
+    regi["BX"] = &BX;
+    regi["CX"] = &CX;
+    regi["DX"] = &DX;
+    regi["BP"] = &BP;
+    regi["SP"] = &SP;
+    regi["DI"] = &DI;
+    regi["SI"] = &SI;
+    regi["FLAG"] = &flag;
 
-    reg["AL"] = &AL;
-    reg["BL"] = &BL;
-    reg["CL"] = &CL;
-    reg["DL"] = &DL;
+    regi["AL"] = &AL;
+    regi["BL"] = &BL;
+    regi["CL"] = &CL;
+    regi["DL"] = &DL;
 
-    reg["AH"] = &AH;
-    reg["BH"] = &BH;
-    reg["CH"] = &CH;
-    reg["DH"] = &DH;
+    regi["AH"] = &AH;
+    regi["BH"] = &BH;
+    regi["CH"] = &CH;
+    regi["DH"] = &DH;
 
-    reg["CS"] = &CS;
-    reg["DS"] = &DS;
-    reg["ES"] = &ES;
-    reg["SS"] = &SS;
+    regi["CS"] = &CS;
+    regi["DS"] = &DS;
+    regi["ES"] = &ES;
+    regi["SS"] = &SS;
 
     int temp = rand();
-    for (auto &i : reg)
+    for (auto &i : regi)
     {
         *(i.second) = temp;
         temp++;
@@ -49,27 +49,64 @@ bool registers::is_segment_register(string &register_name)
 
 bool registers::is_register(string &register_name)
 {
-    return reg.count(register_name);
+    return regi.count(register_name);
 }
 
 int16_t registers::get_data(string &register_name)
 {
-    return *(reg[register_name]);
+    if (regi.count(register_name) == 0)
+    {
+        cout << register_name << "\n\n";
+        print_register_map();
+        cout << "the given register name does not exist\n\n";
+        return -1;
+    }
+    return *(regi[register_name]);
 }
 
 void registers::set_value(string &register_name, int16_t val)
 {
-    *reg["register_name"] = val;
+    if (regi.count(register_name) == 0)
+    {
+        cout << register_name << "\n\n";
+        print_register_map();
+        cout << "the given register name does not exist\n\n";
+        return;
+    }
+    *regi[register_name] = val;
 
     int n = register_name.size();
     char last_character = register_name[n - 1];
 
     if (last_character == 'H')
     {
-        *reg[register_name.substr(0, 1) + "X"] |= (val << 8);
+        *regi[register_name.substr(0, 1) + "X"] &= (0x00FF);
+        *regi[register_name.substr(0, 1) + "X"] |= (val << 8);
     }
     else if (last_character == 'L')
     {
-        *reg[register_name.substr(0, 1) + "X"] |= (val);
+        *regi[register_name.substr(0, 1) + "X"] &= (0xFF00);
+        *regi[register_name.substr(0, 1) + "X"] |= (val);
     }
+}
+
+void registers::print_register_map()
+{
+    cout << regi.size() << '\n';
+    for (auto &i : regi)
+    {
+        cout << i.first << " " << *(i.second) << "\n";
+    }
+}
+
+void registers::print_reg_data_hex_format(string &register_name)
+{
+    int16_t data = get_data(register_name);
+    stringstream ss;
+    ss << hex << data;
+    string ans = ss.str();
+
+    cout << ans << '\n';
+
+    return;
 }
