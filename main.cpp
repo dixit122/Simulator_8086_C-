@@ -6,6 +6,8 @@
 
 using namespace std;
 
+// to correct the initialization of AL,AH,BL,BH and so on according to AX,BX and so on
+
 // global object of memory
 memory mem;
 

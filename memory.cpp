@@ -6,14 +6,19 @@ registers reg;
 
 memory::memory()
 {
-    total_size = 1048576;
-    memory_location = new (nothrow) uint8_t[1048576];
+    total_size = 5000;
+    memory_location = new (nothrow) int8_t[total_size];
 
     srand(unsigned(time(NULL)));
+    uint8_t x = 1;
 
     for (int i = 0; i < total_size; i += 1)
     {
-        memory_location[i] = (rand() % 256);
+        memory_location[i] = (x % 256);
+        if (x >= 255)
+            x = 0;
+        else
+            x += 1;
     }
 }
 
@@ -136,11 +141,15 @@ uint32_t memory::string_to_effective_address(string &memory_address)
     return final_address;
 }
 
-uint8_t memory::get_data(string &memory_address)
+int8_t memory::get_data(string &memory_address)
 {
     uint32_t final_address = string_to_effective_address(memory_address);
+    memory_location[19] = 20;
+    cout << "here " << memory_location[19] << '\n';
+
     if (final_address < total_size)
     {
+        cout << memory_location[19] << '\n';
         return memory_location[final_address];
     }
     else
