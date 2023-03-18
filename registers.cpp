@@ -34,6 +34,15 @@ registers::registers()
         temp++;
     }
 
+    AH = ((AX & (0xFF00)) >> 8);
+    AL = (AX & (0x00FF));
+    BH = ((BX & (0xFF00)) >> 8);
+    BL = (BX & (0x00FF));
+    CH = ((CX & (0xFF00)) >> 8);
+    CL = (CX & (0x00FF));
+    DH = ((DX & (0xFF00)) >> 8);
+    DL = (DX & (0x00FF));
+
     flag = 0;
 
     CS = 0;
@@ -52,7 +61,7 @@ bool registers::is_register(string &register_name)
     return regi.count(register_name);
 }
 
-int16_t registers::get_data(string &register_name)
+int32_t registers::get_data(string &register_name)
 {
     if (regi.count(register_name) == 0)
     {
@@ -64,7 +73,7 @@ int16_t registers::get_data(string &register_name)
     return *(regi[register_name]);
 }
 
-void registers::set_value(string &register_name, int16_t val)
+void registers::set_value(string &register_name, int32_t val)
 {
     if (regi.count(register_name) == 0)
     {
@@ -101,7 +110,7 @@ void registers::print_register_map()
 
 void registers::print_reg_data_hex_format(string &register_name)
 {
-    int16_t data = get_data(register_name);
+    int32_t data = get_data(register_name);
     stringstream ss;
     ss << hex << data;
     string ans = ss.str();

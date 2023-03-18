@@ -1,1 +1,1 @@
-mov al,bl
+MOV AH,[AH+BH+3]

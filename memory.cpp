@@ -6,7 +6,7 @@ registers reg;
 
 memory::memory()
 {
-    total_size = 5000;
+    total_size = 1048575;
     memory_location = new (nothrow) int8_t[total_size];
 
     srand(unsigned(time(NULL)));
@@ -144,12 +144,8 @@ uint32_t memory::string_to_effective_address(string &memory_address)
 int8_t memory::get_data(string &memory_address)
 {
     uint32_t final_address = string_to_effective_address(memory_address);
-    memory_location[19] = 20;
-    cout << "here " << memory_location[19] << '\n';
-
     if (final_address < total_size)
     {
-        cout << memory_location[19] << '\n';
         return memory_location[final_address];
     }
     else

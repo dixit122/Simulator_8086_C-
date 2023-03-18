@@ -4,6 +4,8 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+#include "global_objects.h"
+
 class memory
 {
 private:
