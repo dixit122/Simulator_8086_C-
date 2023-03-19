@@ -18,6 +18,7 @@ int random_val = rand();
 
 // function prototypes
 void process_instruction(string &);
+void process_mov_instruction(vector<string> &);
 void split_instruction_into_operation_and_operand(string &, vector<string> &);
 void upper_case(char &);
 
@@ -48,8 +49,68 @@ void split_instruction_into_operation_and_operand(string &line, vector<string> &
     return;
 }
 
-// processing instruction
+// processing mov instruction
+void process_mov_instruction(vector<string> &v)
+{
+    string operand1 = v[1];
+    string operand2 = v[2];
 
+    // memory <- memory (illegal)
+    if (mem.is_memory(operand1) && mem.is_memory(operand2))
+    {
+        cout << "both opernads can not be memory location \n";
+        return;
+    }
+
+    // imediate < -memory / register(illegal)
+    else if (im.is_immediate(operand1))
+    {
+        cout << "the destination can not be imediate value";
+    }
+    else
+    {
+        // reg <- reg
+        if (reg.is_register(operand1) && reg.is_register(operand2))
+        {
+            if (operand2[1] != operand1[1] && (operand1[1] == 'X' || operand2[1] == 'X'))
+            {
+                cout << "the registers in mov instruction should be of the same size --> error \n";
+                return;
+            }
+            reg.set_value(operand1, reg.get_data(operand2));
+        }
+        // memory_location / register <- imediate
+        else if (im.is_immediate(operand2))
+        {
+            if (reg.is_register(operand1))
+                reg.set_value(operand1, im.string_to_imediate(operand2));
+            else
+                mem.set_memory_location(operand1, im.string_to_imediate(operand2));
+        }
+        else
+        {
+            // memory <- register
+            if (mem.is_memory(operand1) && reg.is_register(operand2))
+            {
+                mem.set_memory_location(operand1, reg.get_data(operand2));
+            }
+            // register <- memory
+            else if (reg.is_register(operand1) && mem.is_memory(operand2))
+            {
+                reg.set_value(operand1, mem.get_data(operand2));
+            }
+
+            // invalid
+            else
+            {
+                cout << "illegal_instruction\n";
+                return;
+            }
+        }
+    }
+}
+
+// processing instruction
 void process_instruction(string &instruction)
 {
     for (auto &i : instruction)
@@ -82,62 +143,7 @@ void process_instruction(string &instruction)
     }
     if (opration == "MOV")
     {
-        string operand1 = v[1];
-        string operand2 = v[2];
-
-        // memory <- memory (illegal)
-        if (mem.is_memory(operand1) && mem.is_memory(operand2))
-        {
-            cout << "both opernads can not be memory location \n";
-            return;
-        }
-
-        // imediate < -memory / register(illegal)
-        else if (im.is_immediate(operand1))
-        {
-            cout << "the destination can not be imediate value";
-        }
-        else
-        {
-            // reg <- reg
-            if (reg.is_register(operand1) && reg.is_register(operand2))
-            {
-                if (operand2[1] != operand1[1] && (operand1[1] == 'X' || operand2[1] == 'X'))
-                {
-                    cout << "the registers in mov instruction should be of the same size --> error \n";
-                    return;
-                }
-                reg.set_value(operand1, reg.get_data(operand2));
-            }
-            // memory_location / register <- imediate
-            else if (im.is_immediate(operand2))
-            {
-                if (reg.is_register(operand1))
-                    reg.set_value(operand1, im.string_to_imediate(operand2));
-                else
-                    mem.set_memory_location(operand1, im.string_to_imediate(operand2));
-            }
-            else
-            {
-                // memory <- register
-                if (mem.is_memory(operand1) && reg.is_register(operand2))
-                {
-                    mem.set_memory_location(operand1, reg.get_data(operand2));
-                }
-                // register <- memory
-                else if (reg.is_register(operand1) && mem.is_memory(operand2))
-                {
-                    reg.set_value(operand1, mem.get_data(operand2));
-                }
-
-                // invalid
-                else
-                {
-                    cout << "illegal_instruction\n";
-                    return;
-                }
-            }
-        }
+        process_mov_instruction(v);
     }
 }
 
