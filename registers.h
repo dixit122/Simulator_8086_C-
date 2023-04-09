@@ -22,7 +22,7 @@ public:
     bool is_register(string &);
     int32_t get_data(string &);
     void set_value(string &, int32_t);
-    void print_register_map();
+    void print_register_map(std::ofstream &);
     void print_reg_data_hex_format(string &);
 };
 

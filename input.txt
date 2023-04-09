@@ -1,1 +1,1 @@
-MOV AH,[AH+BH+3]
+ADD AX,BX;

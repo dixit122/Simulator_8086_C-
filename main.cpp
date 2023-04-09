@@ -1,24 +1,29 @@
 #include <bits/stdc++.h>
-#include "global_objects.h"
+
 #include "registers.h"
+#include "global_objects.h"
+
 #include "memory.h"
 #include "immediate.h"
 #include "operation.h"
+#include "alu.h"
+#include "memory_global_object.h"
 
 using namespace std;
 
 // to correct the initialization of AL,AH,BL,BH and so on according to AX,BX and so on
 
 // global object of memory
-memory mem;
 operation op;
-immediate im;
+alu al;
+// immediate im;
+// memory mem;
 
 int random_val = rand();
-
 // function prototypes
 void process_instruction(string &);
 void process_mov_instruction(vector<string> &);
+void process_add_instruction(vector<string> &);
 void split_instruction_into_operation_and_operand(string &, vector<string> &);
 void upper_case(char &);
 
@@ -83,9 +88,9 @@ void process_mov_instruction(vector<string> &v)
         else if (im.is_immediate(operand2))
         {
             if (reg.is_register(operand1))
-                reg.set_value(operand1, im.string_to_imediate(operand2));
+                reg.set_value(operand1, im.get_data(operand2));
             else
-                mem.set_memory_location(operand1, im.string_to_imediate(operand2));
+                mem.set_memory_location(operand1, im.get_data(operand2));
         }
         else
         {
@@ -108,6 +113,15 @@ void process_mov_instruction(vector<string> &v)
             }
         }
     }
+}
+
+// processing add instruction
+void process_add_instruction(vector<string> &v)
+{
+    string operand1 = v[1];
+    string operand2 = v[2];
+
+    al.perform_addition(v[1], v[2]);
 }
 
 // processing instruction
@@ -141,9 +155,14 @@ void process_instruction(string &instruction)
         cout << "illegal instruction\n";
         return;
     }
+
     if (opration == "MOV")
     {
         process_mov_instruction(v);
+    }
+    else if (opration == "ADD")
+    {
+        process_add_instruction(v);
     }
 }
 
@@ -158,12 +177,17 @@ int main(void)
     fstream inputfile;
     inputfile.open("input.txt", ios::in);
 
+    ofstream output;
+    output.open("output.txt");
+
     if (inputfile.is_open())
     {
         string str;
         while (getline(inputfile, str))
         {
             process_instruction(str);
+            reg.print_register_map(output);
+            cout << "\n\n";
         }
     }
 }

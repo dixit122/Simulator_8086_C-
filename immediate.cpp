@@ -18,7 +18,7 @@ bool immediate::is_memory(string &operand)
     return false;
 }
 
-int8_t immediate::string_to_imediate(string &operand)
+int8_t immediate::get_data(string &operand)
 {
     int8_t ans = 0;
     if (check_if_string_hexadecimal(operand))

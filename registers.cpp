@@ -66,7 +66,6 @@ int32_t registers::get_data(string &register_name)
     if (regi.count(register_name) == 0)
     {
         cout << register_name << "\n\n";
-        print_register_map();
         cout << "the given register name does not exist\n\n";
         return -1;
     }
@@ -78,7 +77,6 @@ void registers::set_value(string &register_name, int32_t val)
     if (regi.count(register_name) == 0)
     {
         cout << register_name << "\n\n";
-        print_register_map();
         cout << "the given register name does not exist\n\n";
         return;
     }
@@ -99,12 +97,12 @@ void registers::set_value(string &register_name, int32_t val)
     }
 }
 
-void registers::print_register_map()
+void registers::print_register_map(std::ofstream &output)
 {
-    cout << regi.size() << '\n';
+    output << regi.size() << '\n';
     for (auto &i : regi)
     {
-        cout << i.first << " " << *(i.second) << "\n";
+        output << i.first << " " << *(i.second) << "\n";
     }
 }
 

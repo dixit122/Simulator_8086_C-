@@ -2,9 +2,10 @@
 #define MEMORY_H
 
 #include <bits/stdc++.h>
-using namespace std;
-
+#include "registers.h"
 #include "global_objects.h"
+
+using namespace std;
 
 class memory
 {

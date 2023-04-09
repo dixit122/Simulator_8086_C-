@@ -4,8 +4,11 @@ ccflags = -c
 run : mainfile
 	./main.exe
 
-mainfile : main.cpp registers.o global_objects.h memory.o operation.o immediate.o
-	$(src) main.cpp registers.o memory.o operation.o immediate.o -o main.exe
+clean : memory.o registers.o operation.o immediate.o main.exe alu.o
+	rm memory.o registers.o operation.o immediate.o main.exe alu.o
+
+mainfile : main.cpp registers.o global_objects.h memory.o operation.o immediate.o memory_global_object.h alu.o
+	$(src) main.cpp registers.o memory.o operation.o immediate.o alu.o -o main.exe
 
 registers.o : registers.cpp registers.h
 	$(src) $(ccflags) registers.cpp
@@ -18,5 +21,10 @@ operation.o : operation.cpp operation.h
 
 immediate.o : immediate.cpp immediate.h registers.h
 	$(src) $(ccflags) immediate.cpp
+
+alu.o : global_objects.h memory_global_object.h alu.h alu.cpp
+	$(src) $(ccflags) alu.cpp
+
+
 
 

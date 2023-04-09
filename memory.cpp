@@ -1,6 +1,4 @@
 #include "memory.h"
-#include "registers.h"
-#include "global_objects.h"
 
 registers reg;
 
@@ -92,10 +90,13 @@ void memory::upper_case(char &c)
 
 uint16_t memory::convert_hex_string_to_decimal(string &hex_string)
 {
-    hex_string = hex_string.substr(2);
-
     for (auto &i : hex_string)
         upper_case(i);
+
+    if (hex_string.size() > 1 && hex_string.substr(0, 2) == "0X")
+        hex_string = hex_string.substr(2);
+    else
+        hex_string = hex_string.substr(0, hex_string.size() - 1);
 
     uint16_t decimal_num = 0;
 
@@ -117,7 +118,7 @@ uint16_t memory::convert_hex_string_to_decimal(string &hex_string)
 
 bool memory::check_if_string_hexadecimal(string &str)
 {
-    if (str.size() > 1 && (str.substr(0, 2) == "0x" || str.substr(0, 2) == "0X"))
+    if (str.size() > 1 && ((str.substr(0, 2) == "0x" || str.substr(0, 2) == "0X") || (str[str.size() - 1] == 'h' || str[str.size() - 1] == 'H')))
         return true;
     else
         return false;
