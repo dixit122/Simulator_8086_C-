@@ -1,158 +1,262 @@
 #include <bits/stdc++.h>
+
+#include "registers.h"
+#include "global_objects.h"
+
+#include "memory.h"
+#include "immediate.h"
+#include "operation.h"
+#include "alu.h"
+#include "memory_global_object.h"
+
 using namespace std;
 
+// to correct the initialization of AL,AH,BL,BH and so on according to AX,BX and so on
+
+// global object of memory
+operation op;
+alu al;
+// immediate im;
+// memory mem;
+
 int random_val = rand();
+// function prototypes
+void process_instruction(string &);
+void process_mov_instruction(vector<string> &);
+void process_add_instruction(vector<string> &);
+void process_sub_instruction(vector<string> &);
+void process_adc_instruction(vector<string> &);
+void process_sbb_instruction(vector<string> &);
+void process_mul_instruction(vector<string> &);
+void process_div_instruction(vector<string> &);
 
-class registers
+void split_instruction_into_operation_and_operand(string &, vector<string> &);
+void upper_case(char &);
+
+// spliting  instruction into operation & operands
+void split_instruction_into_operation_and_operand(string &line, vector<string> &ans)
 {
-private:
-    int16_t AX, BX, CX, DX;
-    int16_t CS, DS, SS, ES;
-    int16_t SP, BP, SI, DI;
-    int16_t AL, BL, CL, DL;
-    int16_t AH, BH, CH, DH;
-    int16_t flag;
-    map<string, int16_t *> reg;
-
-public:
-    registers()
+    int n = line.size();
+    string curr = "";
+    for (int i = 0; i < n; i += 1)
     {
-        reg["AX"] = &AX;
-        reg["BX"] = &BX;
-        reg["CX"] = &CX;
-        reg["DX"] = &DX;
-        reg["BP"] = &BP;
-        reg["SP"] = &SP;
-        reg["DI"] = &DI;
-        reg["SI"] = &SI;
-        reg["FLAG"] = &flag;
-
-        reg["AL"] = &AL;
-        reg["BL"] = &BL;
-        reg["CL"] = &CL;
-        reg["DL"] = &DL;
-
-        reg["AH"] = &AH;
-        reg["BH"] = &BH;
-        reg["CH"] = &CH;
-        reg["DH"] = &DH;
-
-        reg["CS"] = &CS;
-        reg["DS"] = &DS;
-        reg["ES"] = &ES;
-        reg["SS"] = &SS;
-
-        int temp = random_val;
-        for (auto &i : reg)
+        if (line[i] == ';')
+            break;
+        else if (line[i] == ' ' || line[i] == ',')
         {
-            *(i.second) = temp;
-            temp++;
+            if (curr.size())
+                ans.push_back(curr);
+            curr = "";
         }
-
-        flag = 0;
-
-        CS = 0;
-        DS = 16384;
-        ES = 2 * DS;
-        SS = 3 * DS;
-    }
-
-    bool is_segment_register(string &register_name)
-    {
-        return (register_name == "CS" || register_name == "DS" || register_name == "ES" || register_name == "SS");
-    }
-
-    bool is_register(string &register_name)
-    {
-        return reg.count(register_name);
-    }
-
-    int16_t get_data(string &register_name)
-    {
-        return *(reg[register_name]);
-    }
-
-    void set_value(string &register_name, int16_t val)
-    {
-        *reg["register_name"] = val;
-
-        int n = register_name.size();
-        char last_character = register_name[n - 1];
-
-        if (last_character == 'H')
+        else
         {
-            *reg[register_name.substr(0, 1) + "X"] |= (val << 8);
-        }
-        else if (last_character == 'L')
-        {
-            *reg[register_name.substr(0, 1) + "X"] |= (val);
+            curr.push_back(line[i]);
         }
     }
-};
 
-// gloabal objects
-registers reg;
+    if (curr.size())
+        ans.push_back(curr);
 
-class memory
+    return;
+}
+
+// processing mov instruction
+void process_mov_instruction(vector<string> &v)
 {
-private:
-    int8_t *memory_location;
-    int32_t total_size;
+    string operand1 = v[1];
+    string operand2 = v[2];
 
-public:
-    memory()
+    // memory <- memory (illegal)
+    if (mem.is_memory(operand1) && mem.is_memory(operand2))
     {
-        total_size = 1048576;
-        memory_location = new (nothrow) int8_t[1048576];
-
-        srand(unsigned(time(NULL)));
-
-        for (int i = 0; i < total_size; i += 1)
-        {
-            memory_location[i] = (rand() % 256);
-        }
+        cout << "both opernads can not be memory location \n";
+        return;
     }
 
-    bool is_memory(string &operand)
+    // imediate < -memory / register(illegal)
+    else if (im.is_immediate(operand1))
     {
-        for (auto &i : operand)
-        {
-            if (i == '[')
-                return true;
-        }
-        return false;
+        cout << "the destination can not be imediate value";
     }
-
-    uint16_t convert_string_to_memory_location(string &mem_loc)
+    else
     {
-        uint16_t location = 0;
-
-        string curr = "";
-        vector<string> elements;
-        for (auto &i : mem_loc)
+        // reg <- reg
+        if (reg.is_register(operand1) && reg.is_register(operand2))
         {
-            if (i == '[' || i == ']' || i == ' ' || i == '+' || i == '-')
+            if (operand2[1] != operand1[1] && (operand1[1] == 'X' || operand2[1] == 'X'))
             {
-                if (curr.size())
-                {
-                    elements.push_back(curr);
-                }
-                curr = "";
-                if (i == '-')
-                {
-                    curr.push_back('-');
-                }
+                cout << "the registers in mov instruction should be of the same size --> error \n";
+                return;
             }
+            reg.set_value(operand1, reg.get_data(operand2));
+        }
+        // memory_location / register <- imediate
+        else if (im.is_immediate(operand2))
+        {
+            if (reg.is_register(operand1))
+                reg.set_value(operand1, im.get_data(operand2));
+            else
+                mem.set_memory_location(operand1, im.get_data(operand2));
+        }
+        else
+        {
+            // memory <- register
+            if (mem.is_memory(operand1) && reg.is_register(operand2))
+            {
+                mem.set_memory_location(operand1, reg.get_data(operand2));
+            }
+            // register <- memory
+            else if (reg.is_register(operand1) && mem.is_memory(operand2))
+            {
+                reg.set_value(operand1, mem.get_data(operand2));
+            }
+
+            // invalid
             else
             {
-                curr.push_back(i);
+                cout << "illegal_instruction\n";
+                return;
             }
         }
     }
-};
+}
+
+// processing add instruction
+void process_add_instruction(vector<string> &v)
+{
+    string operand1 = v[1];
+    string operand2 = v[2];
+
+    al.perform_addition(v[1], v[2]);
+}
+
+// processing sub instruction
+void process_sub_instruction(vector<string> &v)
+{
+    string operand1 = v[1];
+    string operand2 = v[2];
+
+    al.perform_subtraction(v[1], v[2]);
+}
+
+// processing sbb instruction
+void process_sbb_instruction(vector<string> &v)
+{
+    string operand1 = v[1];
+    string operand2 = v[2];
+
+    al.perform_subtraction_with_carry(v[1], v[2]);
+}
+
+// processing adc instruction
+void process_adc_instruction(vector<string> &v)
+{
+    string operand1 = v[1];
+    string operand2 = v[2];
+
+    al.perform_addition_with_carry(v[1], v[2]);
+}
+
+// processing mul instruction
+void process_mul_instruction(vector<string> &v)
+{
+    string operand1 = v[1];
+
+    al.perform_multiplication(v[1]);
+}
+
+// processing mul instruction
+void process_div_instruction(vector<string> &v)
+{
+    string operand1 = v[1];
+
+    al.perform_division(v[1]);
+}
+
+// processing instruction
+void process_instruction(string &instruction)
+{
+    for (auto &i : instruction)
+    {
+        upper_case(i);
+    }
+
+    vector<string> v;
+    split_instruction_into_operation_and_operand(instruction, v);
+
+    int n = v.size();
+
+    if (n == 0)
+        return;
+
+    string opration = v[0];
+
+    int no_of_operands = op.get_number_of_operands(opration);
+
+    for (auto &i : v)
+    {
+        cout << i << " ";
+    }
+    cout << '\n';
+
+    if (no_of_operands != (n - 1) || no_of_operands == -1)
+    {
+        cout << "illegal instruction\n";
+        return;
+    }
+
+    if (opration == "MOV")
+    {
+        process_mov_instruction(v);
+    }
+    else if (opration == "ADD")
+    {
+        process_add_instruction(v);
+    }
+    else if (opration == "SUB")
+    {
+        process_sub_instruction(v);
+    }
+    else if (opration == "MUL")
+    {
+        process_mul_instruction(v);
+    }
+    else if (opration == "ADC")
+    {
+        process_adc_instruction(v);
+    }
+    else if (opration == "SBB")
+    {
+        process_sbb_instruction(v);
+    }
+    else if (opration == "DIV")
+    {
+        process_div_instruction(v);
+    }
+}
+
+void upper_case(char &c)
+{
+    if (c >= 'a' && c <= 'z')
+        c -= 32;
+}
 
 int main(void)
 {
-    string str = "AH";
-    cout << reg.get_data(str) << '\n';
+    fstream inputfile;
+    inputfile.open("input.txt", ios::in);
+
+    ofstream output;
+    output.open("output.txt");
+
+    if (inputfile.is_open())
+    {
+        string str;
+        while (getline(inputfile, str))
+        {
+            process_instruction(str);
+            reg.print_register_map(output);
+            output << "\n\n";
+        }
+    }
 }
