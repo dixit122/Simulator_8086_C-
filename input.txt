@@ -1,1 +1,3 @@
-ADD AX,BX;
+mov ax,5
+mov bx,10
+sub ax,ax

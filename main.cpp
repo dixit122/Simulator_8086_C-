@@ -24,6 +24,12 @@ int random_val = rand();
 void process_instruction(string &);
 void process_mov_instruction(vector<string> &);
 void process_add_instruction(vector<string> &);
+void process_sub_instruction(vector<string> &);
+void process_adc_instruction(vector<string> &);
+void process_sbb_instruction(vector<string> &);
+void process_mul_instruction(vector<string> &);
+void process_div_instruction(vector<string> &);
+
 void split_instruction_into_operation_and_operand(string &, vector<string> &);
 void upper_case(char &);
 
@@ -124,6 +130,49 @@ void process_add_instruction(vector<string> &v)
     al.perform_addition(v[1], v[2]);
 }
 
+// processing sub instruction
+void process_sub_instruction(vector<string> &v)
+{
+    string operand1 = v[1];
+    string operand2 = v[2];
+
+    al.perform_subtraction(v[1], v[2]);
+}
+
+// processing sbb instruction
+void process_sbb_instruction(vector<string> &v)
+{
+    string operand1 = v[1];
+    string operand2 = v[2];
+
+    al.perform_subtraction_with_carry(v[1], v[2]);
+}
+
+// processing adc instruction
+void process_adc_instruction(vector<string> &v)
+{
+    string operand1 = v[1];
+    string operand2 = v[2];
+
+    al.perform_addition_with_carry(v[1], v[2]);
+}
+
+// processing mul instruction
+void process_mul_instruction(vector<string> &v)
+{
+    string operand1 = v[1];
+
+    al.perform_multiplication(v[1]);
+}
+
+// processing mul instruction
+void process_div_instruction(vector<string> &v)
+{
+    string operand1 = v[1];
+
+    al.perform_division(v[1]);
+}
+
 // processing instruction
 void process_instruction(string &instruction)
 {
@@ -164,6 +213,26 @@ void process_instruction(string &instruction)
     {
         process_add_instruction(v);
     }
+    else if (opration == "SUB")
+    {
+        process_sub_instruction(v);
+    }
+    else if (opration == "MUL")
+    {
+        process_mul_instruction(v);
+    }
+    else if (opration == "ADC")
+    {
+        process_adc_instruction(v);
+    }
+    else if (opration == "SBB")
+    {
+        process_sbb_instruction(v);
+    }
+    else if (opration == "DIV")
+    {
+        process_div_instruction(v);
+    }
 }
 
 void upper_case(char &c)
@@ -187,7 +256,7 @@ int main(void)
         {
             process_instruction(str);
             reg.print_register_map(output);
-            cout << "\n\n";
+            output << "\n\n";
         }
     }
 }

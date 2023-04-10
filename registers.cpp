@@ -95,6 +95,13 @@ void registers::set_value(string &register_name, int32_t val)
         *regi[register_name.substr(0, 1) + "X"] &= (0xFF00);
         *regi[register_name.substr(0, 1) + "X"] |= (val);
     }
+    else if (last_character == 'X')
+    {
+        *regi[register_name.substr(0, 1) + "L"] = 0;
+        *regi[register_name.substr(0, 1) + "H"] = 0;
+        *regi[register_name.substr(0, 1) + "L"] |= (val & 0x00FF);
+        *regi[register_name.substr(0, 1) + "H"] |= (val >> 8);
+    }
 }
 
 void registers::print_register_map(std::ofstream &output)
@@ -102,8 +109,18 @@ void registers::print_register_map(std::ofstream &output)
     output << regi.size() << '\n';
     for (auto &i : regi)
     {
-        output << i.first << " " << *(i.second) << "\n";
+        if (i.first != "flag")
+            output << i.first << " " << *(i.second) << "\n";
     }
+
+    output << "\n";
+
+    output << "carry"
+           << " " << get_flag_data("carry") << "\n";
+    output << "zero"
+           << " " << get_flag_data("zero") << "\n";
+    output << "overflow"
+           << " " << get_flag_data("overflow") << "\n";
 }
 
 void registers::print_reg_data_hex_format(string &register_name)
@@ -116,4 +133,36 @@ void registers::print_reg_data_hex_format(string &register_name)
     cout << ans << '\n';
 
     return;
+}
+
+void registers::update_flag(string name_of_flag, bool val)
+{
+    if (name_of_flag == "carry")
+    {
+        flag |= val;
+    }
+    else if (name_of_flag == "overflow")
+    {
+        flag |= (val * 1ll << 11);
+    }
+    else if (name_of_flag == "zero")
+    {
+        flag |= (val * 1ll << 6);
+    }
+}
+
+bool registers::get_flag_data(string flag_name)
+{
+    if (flag_name == "carry")
+    {
+        return ((flag & 1) != 0);
+    }
+    else if (flag_name == "overflow")
+    {
+        return ((flag & (1 << 11)) != 0);
+    }
+    else if (flag_name == "zero")
+    {
+        return ((flag & (1 << 6)) != 0);
+    }
 }

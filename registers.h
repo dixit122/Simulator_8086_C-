@@ -24,6 +24,8 @@ public:
     void set_value(string &, int32_t);
     void print_register_map(std::ofstream &);
     void print_reg_data_hex_format(string &);
+    void update_flag(string, bool);
+    bool get_flag_data(string);
 };
 
 #endif
