@@ -21,7 +21,8 @@ alu al;
 
 int random_val = rand();
 // function prototypes
-void process_instruction(string &);
+vector<string> preprocess_instruction(string &);
+void process_instruction(vector<string> &);
 void process_mov_instruction(vector<string> &);
 void process_add_instruction(vector<string> &);
 void process_sub_instruction(vector<string> &);
@@ -29,6 +30,8 @@ void process_adc_instruction(vector<string> &);
 void process_sbb_instruction(vector<string> &);
 void process_mul_instruction(vector<string> &);
 void process_div_instruction(vector<string> &);
+bool check_jump_instruction(string &);
+bool process_jump_instruction(string &);
 
 void split_instruction_into_operation_and_operand(string &, vector<string> &);
 void upper_case(char &);
@@ -173,37 +176,31 @@ void process_div_instruction(vector<string> &v)
     al.perform_division(v[1]);
 }
 
-// processing instruction
-void process_instruction(string &instruction)
+// checking for jump instruction
+bool check_jump_instruction(string &op)
 {
-    for (auto &i : instruction)
-    {
-        upper_case(i);
-    }
+    return (op == "JE" || op == "JNE" || op == "JZ" || op == "JNZ" || op == "JC" || op == "JNC");
+}
 
-    vector<string> v;
-    split_instruction_into_operation_and_operand(instruction, v);
+// checking for validity of jump instruction
+bool process_jump_instruction(string &op)
+{
+    if (op == "JZ" || op == "JE")
+        return reg.get_flag_data("zero");
+    else if (op == "JC")
+        return reg.get_flag_data("carry");
+    else if (op == "JNZ" || op == "JNE")
+        return (reg.get_flag_data("zero") == 0);
+    else if (op == "JNC")
+        return (reg.get_flag_data("carry") == 0);
+    else
+        return false;
+}
 
-    int n = v.size();
-
-    if (n == 0)
-        return;
-
+// preocessing instruction
+void process_instruction(vector<string> &v)
+{
     string opration = v[0];
-
-    int no_of_operands = op.get_number_of_operands(opration);
-
-    for (auto &i : v)
-    {
-        cout << i << " ";
-    }
-    cout << '\n';
-
-    if (no_of_operands != (n - 1) || no_of_operands == -1)
-    {
-        cout << "illegal instruction\n";
-        return;
-    }
 
     if (opration == "MOV")
     {
@@ -235,6 +232,41 @@ void process_instruction(string &instruction)
     }
 }
 
+// preprocessing instruction
+vector<string> preprocess_instruction(string &instruction)
+{
+    for (auto &i : instruction)
+    {
+        upper_case(i);
+    }
+
+    vector<string> v;
+    split_instruction_into_operation_and_operand(instruction, v);
+
+    int n = v.size();
+
+    if (n == 0)
+        return v;
+
+    string opration = v[0];
+
+    // int no_of_operands = op.get_number_of_operands(opration);
+
+    // for (auto &i : v)
+    // {
+    //     cout << i << " ";
+    // }
+    // cout << '\n';
+
+    return v;
+
+    // if (no_of_operands != (n - 1) || no_of_operands == -1)
+    // {
+    //     cout << "illegal instruction\n";
+    //     return;
+    // }
+}
+
 void upper_case(char &c)
 {
     if (c >= 'a' && c <= 'z')
@@ -246,17 +278,60 @@ int main(void)
     fstream inputfile;
     inputfile.open("input.txt", ios::in);
 
-    ofstream output;
-    output.open("output.txt");
+    map<int, vector<string>> instructions;
+    map<string, int> symbol_table;
 
+    int i = 1;
     if (inputfile.is_open())
     {
         string str;
+
         while (getline(inputfile, str))
         {
-            process_instruction(str);
-            reg.print_register_map(output);
-            output << "\n\n";
+            cout << str << " ";
+            vector<string> v;
+            v = preprocess_instruction(str);
+
+            if (v.size() && v[0].size() && v[0][v[0].size() - 1] == ':')
+            {
+                symbol_table[v[0].substr(0, v[0].size() - 1)] = i;
+                v.erase(v.begin());
+                instructions[i] = v;
+            }
+            else if (v.size())
+            {
+                instructions[i] = v;
+            }
+            i += 1;
         }
     }
+    ofstream output;
+    output.open("output.txt");
+
+    for (int i = 1; i <= instructions.size(); i += 1)
+    {
+        if (instructions[i].size() == 0)
+            continue;
+        if (check_jump_instruction(instructions[i][0]))
+        {
+            if (process_jump_instruction(instructions[i][0]))
+            {
+                i = symbol_table[instructions[i][1]] - 1;
+            }
+        }
+        else
+        {
+            process_instruction(instructions[i]);
+        }
+    }
+
+    reg.print_register_map(output);
+
+    output.close();
+
+    ofstream symbol;
+    symbol.open("symbol_table.txt");
+
+    for (auto &i : symbol_table)
+        symbol << i.first << " " << i.second << "\n";
 }

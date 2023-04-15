@@ -106,7 +106,6 @@ void registers::set_value(string &register_name, int32_t val)
 
 void registers::print_register_map(std::ofstream &output)
 {
-    output << regi.size() << '\n';
     for (auto &i : regi)
     {
         if (i.first != "flag")
