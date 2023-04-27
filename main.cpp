@@ -32,9 +32,111 @@ void process_mul_instruction(vector<string> &);
 void process_div_instruction(vector<string> &);
 bool check_jump_instruction(string &);
 bool process_jump_instruction(string &);
+void process_cmp_instruction(vector<string> &);
 
 void split_instruction_into_operation_and_operand(string &, vector<string> &);
 void upper_case(char &);
+
+// compare
+
+void process_cmp_instruction(vector<string> &op)
+{
+    string op1 = op[1];
+    string op2 = op[2];
+
+    if (reg.is_register(op1) && reg.is_register(op2))
+    {
+        int x = reg.get_data(op1);
+        int y = reg.get_data(op2);
+        if (x - y < 0)
+        {
+            reg.update_flag("carry", 1);
+            reg.update_flag("zero", 0);
+            reg.update_flag("overflow", 0);
+        }
+        else if (x - y > 0)
+        {
+            reg.update_flag("carry", 0);
+            reg.update_flag("zero", 0);
+            reg.update_flag("overflow", 0);
+        }
+        else
+        {
+            reg.update_flag("carry", 0);
+            reg.update_flag("zero", 1);
+            reg.update_flag("overflow", 0);
+        }
+    }
+    else if (mem.is_memory(op1) && reg.is_register(op2))
+    {
+        int x = mem.get_data(op1);
+        int y = reg.get_data(op2);
+        if (x - y < 0)
+        {
+            reg.update_flag("carry", 1);
+            reg.update_flag("zero", 0);
+            reg.update_flag("overflow", 0);
+        }
+        else if (x - y > 0)
+        {
+            reg.update_flag("carry", 0);
+            reg.update_flag("zero", 0);
+            reg.update_flag("overflow", 0);
+        }
+        else
+        {
+            reg.update_flag("carry", 0);
+            reg.update_flag("zero", 1);
+            reg.update_flag("overflow", 0);
+        }
+    }
+    else if (mem.is_memory(op1) && mem.is_memory(op2))
+    {
+        int x = mem.get_data(op1);
+        int y = mem.get_data(op2);
+        if (x - y < 0)
+        {
+            reg.update_flag("carry", 1);
+            reg.update_flag("zero", 0);
+            reg.update_flag("overflow", 0);
+        }
+        else if (x - y > 0)
+        {
+            reg.update_flag("carry", 0);
+            reg.update_flag("zero", 0);
+            reg.update_flag("overflow", 0);
+        }
+        else
+        {
+            reg.update_flag("carry", 0);
+            reg.update_flag("zero", 1);
+            reg.update_flag("overflow", 0);
+        }
+    }
+    else
+    {
+        int x = reg.get_data(op1);
+        int y = mem.get_data(op2);
+        if (x - y < 0)
+        {
+            reg.update_flag("carry", 1);
+            reg.update_flag("zero", 0);
+            reg.update_flag("overflow", 0);
+        }
+        else if (x - y > 0)
+        {
+            reg.update_flag("carry", 0);
+            reg.update_flag("zero", 0);
+            reg.update_flag("overflow", 0);
+        }
+        else
+        {
+            reg.update_flag("carry", 0);
+            reg.update_flag("zero", 1);
+            reg.update_flag("overflow", 0);
+        }
+    }
+}
 
 // spliting  instruction into operation & operands
 void split_instruction_into_operation_and_operand(string &line, vector<string> &ans)
@@ -229,6 +331,10 @@ void process_instruction(vector<string> &v)
     else if (opration == "DIV")
     {
         process_div_instruction(v);
+    }
+    else if (opration == "CMP")
+    {
+        process_cmp_instruction(v);
     }
 }
 

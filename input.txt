@@ -1,9 +1,19 @@
-mov ax,1
-mov cx,10
+mov ax,0
+mov [ax],10
+mov [ax+1],30
+mov [ax+2],20
+
 mov bx,0
+mov cx,4
+mov dx,0
 
 loop:
-    add bx,ax
-    add ax,1
     sub cx,1
-    jnz loop
+    jz finish
+    cmp [ax+dx],bx
+    add dx,1
+    jc loop
+    mov bx,[ax+dx]
+    j loop
+
+finish:
