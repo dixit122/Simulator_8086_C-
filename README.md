@@ -1,5 +1,6 @@
 # Simulator_8086_CPP
 
+<html>
 To Run the above project first clone this repository in your environment : 
 
 command : git clone https://github.com/dixit122/Simulator_8086_CPP.git
@@ -12,7 +13,7 @@ Linux Installation Guide:
 Open the terminal on your Linux machine.
 Install the Makefile using your distribution's package manager. For Ubuntu/Debian, you can use the following command: sudo apt-get install make
 
-For CentOS/Fedora, you can use the following command: sudo dnf install make
+For CentOS/Fedora, you can use the following command: <b> sudo dnf install make </b>
 
 Verify that Makefile is installed by checking the version number: make --version
 
@@ -25,3 +26,4 @@ Download the Makefile from the GNU website. The latest version can be found at h
 Run the installer and follow the instructions.
 
 Once the installation is complete, verify that Makefile is installed by checking the version number in the command prompt: make --version
+</html>
