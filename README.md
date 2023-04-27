@@ -15,7 +15,7 @@ Install the Makefile using your distribution's package manager. For Ubuntu/Debia
 
 For CentOS/Fedora, you can use the following command: <b> sudo dnf install make </b>
 
-Verify that Makefile is installed by checking the version number: make --version
+  Verify that Makefile is installed by checking the version number: <b> make --version </b>
 
 If there are no errors, the installation was successful.
 
