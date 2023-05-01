@@ -26,4 +26,6 @@ Download the Makefile from the GNU website. The latest version can be found at h
 Run the installer and follow the instructions.
 
 Once the installation is complete, verify that Makefile is installed by checking the version number in the command prompt: make --version
+
+run the project by command : make run
 </html>
