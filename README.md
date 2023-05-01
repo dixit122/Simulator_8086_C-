@@ -5,7 +5,7 @@ To Run the above project first clone this repository in your environment :
 
 command : git clone https://github.com/dixit122/Simulator_8086_CPP.git
 
-install of makefile tools on your environment :
+installation of makefile tools on your environment :
 
 
 Linux Installation Guide:
